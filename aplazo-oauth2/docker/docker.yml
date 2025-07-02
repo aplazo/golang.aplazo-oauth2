@@ -1,0 +1,9 @@
+services:
+  hydra:
+    image: oryd/hydra:v2.3.0
+    ports:
+      - 9000:4444 # Public port
+      - 9001:4445 # Admin port
+    env_file:
+      - .env
+    restart: unless-stopped
