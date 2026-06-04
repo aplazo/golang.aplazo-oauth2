@@ -1,2 +1,5 @@
 ignore:
   - vulnerability: CVE-2023-2650
+  # docker/docker (indirect): Moby daemon authz-bypass. Unreachable in an
+  # OAuth2/OIDC server (Hydra never runs the Moby engine). Not affected.
+  - vulnerability: CVE-2026-34040

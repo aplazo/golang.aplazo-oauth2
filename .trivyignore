@@ -1,1 +1,8 @@
 CVE-2023-2650
+
+# github.com/docker/docker (indirect dep). CVE-2026-34040 is a Moby daemon
+# authorization-bypass in the engine's authz path. Hydra is an OAuth2/OIDC
+# server and never runs the Moby engine/daemon, so this code path is
+# unreachable (not affected). Cannot bump: docker/docker has no resolvable
+# Go-module revision v29.3.1 on this path (Moby restructured its module).
+CVE-2026-34040
