@@ -1,18 +1,25 @@
 # aplazo-oauth2 Example App
 
-This folder contains scripts and configuration files to demonstrate and test OAuth 2.0 flows using ORY Hydra. It provides a quick way to initialize credentials, start an example app, and reset the environment.
+This folder contains scripts and configuration files to demonstrate and test
+OAuth 2.0 flows using ORY Hydra. It provides a quick way to initialize
+credentials, start an example app, and reset the environment.
 
 ## Files
 
-- **hydra-clients.json**: Stores OAuth 2.0 client credentials for both `client_credentials` and `authorization_code` flows.
-- **init-credentials.sh**: Initializes the OAuth 2.0 client credentials and writes them to `hydra-clients.json`.
-- **start-example-app.sh**: Starts the example web application for the OAuth 2.0 Authorization Code Flow. If `hydra-clients.json` does not exist, it will automatically run `init-credentials.sh`.
+- **hydra-clients.json**: Stores OAuth 2.0 client credentials for both
+  `client_credentials` and `authorization_code` flows.
+- **init-credentials.sh**: Initializes the OAuth 2.0 client credentials and
+  writes them to `hydra-clients.json`.
+- **start-example-app.sh**: Starts the example web application for the OAuth 2.0
+  Authorization Code Flow. If `hydra-clients.json` does not exist, it will
+  automatically run `init-credentials.sh`.
 - **reset.sh**: (Assumed) Resets the environment to a clean state.
 - **start.sh**: (Assumed) Starts the main application or supporting services.
 
 ## Prerequisites
 
-- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed
+- [Docker](https://www.docker.com/) and
+  [Docker Compose](https://docs.docker.com/compose/) installed
 - [jq](https://stedolan.github.io/jq/) installed for JSON parsing
 - ORY Hydra running (typically via Docker Compose)
 
@@ -45,7 +52,8 @@ To start the example OAuth 2.0 Authorization Code Flow app:
 ```
 
 - If `hydra-clients.json` does not exist, it will be created automatically.
-- The script will start the example app and connect to Hydra at `http://127.0.0.1:4444/`.
+- The script will start the example app and connect to Hydra at
+  `http://127.0.0.1:4444/`.
 - The app will be available at [http://127.0.0.1:5555](http://127.0.0.1:5555).
 
 ### 4. Reset the Environment
@@ -75,4 +83,5 @@ To reset the environment (e.g., clear credentials or restart services):
 
 - Make sure Docker and jq are installed and available in your PATH.
 - The scripts assume you are running from the project root directory.
-- For more details on ORY Hydra, see the [official documentation](https://www.ory.sh/hydra/docs/).
+- For more details on ORY Hydra, see the
+  [official documentation](https://www.ory.sh/hydra/docs/).
