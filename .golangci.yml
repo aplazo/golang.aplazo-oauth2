@@ -19,3 +19,10 @@ linters:
       - path: "internal/httpclient"
         linters:
           - errcheck
+      # Tooling false-positive: govet's `inline` analyzer (golangci-lint v2.12.2)
+      # reports "cannot inline: type parameter inference is not yet supported" on
+      # generic stdlib calls (e.g. slices.ContainsFunc) under Go 1.26. Not a code
+      # issue — surfaced by the v26.2.0 upgrade. Drop when the analyzer is fixed.
+      - text: "cannot inline: type parameter inference is not yet supported"
+        linters:
+          - govet
