@@ -11,7 +11,6 @@ import (
 	"github.com/ory/hydra/v2/cmd/cliclient"
 	"github.com/ory/x/cmdx"
 	"github.com/ory/x/flagx"
-	"github.com/ory/x/pointerx"
 
 	"github.com/ory/hydra/v2/cmd/cli"
 )
@@ -57,7 +56,7 @@ func NewCreateClientsCommand() *cobra.Command {
 		Short:   "Create an OAuth 2.0 Client",
 		Aliases: []string{"client"},
 		Args:    cobra.NoArgs,
-		Example: `{{ .CommandPath }} -n "my app" -c http://localhost/cb -g authorization_code -r code -a core,foobar
+		Example: `{{ .CommandPath }} --name "my app" --redirect-uri http://localhost/cb --grant-type authorization_code --response-type code --scope core,foobar
 
 Use the tool jq (or any other JSON tool) to get the OAuth2 Client ID and Secret:
 
@@ -74,7 +73,7 @@ the Authorize Code, Implicit, Refresh flow. This command allows settings all fie
 
 To encrypt an auto-generated OAuth2 Client Secret, use flags ` + "`--pgp-key`" + `, ` + "`--pgp-key-url`" + ` or ` + "`--keybase`" + ` flag, for example:
 
-  {{ .CommandPath }} -n "my app" -g client_credentials -r token -a core,foobar --keybase keybase_username
+  {{ .CommandPath }} --name "my app" --grant-type client_credentials --response-type token --scope core,foobar --keybase keybase_username
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			m, _, err := cliclient.NewClient(cmd)
@@ -93,7 +92,7 @@ To encrypt an auto-generated OAuth2 Client Secret, use flags ` + "`--pgp-key`" +
 			if err != nil {
 				return err
 			}
-			cl.ClientId = pointerx.Ptr(flagx.MustGetString(cmd, flagClientId))
+			cl.ClientId = new(flagx.MustGetString(cmd, flagClientId))
 
 			//nolint:bodyclose
 			client, _, err := m.OAuth2API.CreateOAuth2Client(cmd.Context()).OAuth2Client(cl).Execute()
@@ -102,7 +101,7 @@ To encrypt an auto-generated OAuth2 Client Secret, use flags ` + "`--pgp-key`" +
 			}
 
 			if client.ClientSecret == nil && len(secret) > 0 {
-				client.ClientSecret = pointerx.Ptr(secret)
+				client.ClientSecret = new(secret)
 			}
 
 			if encryptSecret && client.ClientSecret != nil {
@@ -112,7 +111,7 @@ To encrypt an auto-generated OAuth2 Client Secret, use flags ` + "`--pgp-key`" +
 					return cmdx.FailSilently(cmd)
 				}
 
-				client.ClientSecret = pointerx.Ptr(enc.Base64Encode())
+				client.ClientSecret = new(enc.Base64Encode())
 			}
 
 			cmdx.PrintRow(cmd, (*outputOAuth2Client)(client))

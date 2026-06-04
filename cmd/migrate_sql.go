@@ -10,11 +10,9 @@ import (
 
 	"github.com/ory/hydra/v2/cmd/cli"
 	"github.com/ory/hydra/v2/driver"
-	"github.com/ory/x/configx"
-	"github.com/ory/x/servicelocatorx"
 )
 
-func NewMigrateSQLCmd(slOpts []servicelocatorx.Option, dOpts []driver.OptionsModifier, cOpts []configx.OptionModifier) *cobra.Command {
+func NewMigrateSQLCmd(dOpts []driver.OptionsModifier) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:        "sql [database_url]",
 		Deprecated: "Please use `hydra migrate sql up` instead.",
@@ -32,27 +30,27 @@ You can read in the database URL using the -e flag, for example:
 ### WARNING ###
 
 Before running this command on an existing database, create a back up!`,
-		RunE: cli.NewHandler(slOpts, dOpts, cOpts).Migration.MigrateSQLUp,
+		RunE: cli.NewHandler(dOpts).Migration.MigrateSQLUp,
 	}
 
 	cmd.Flags().BoolP("yes", "y", false, "If set all confirmation requests are accepted without user interaction.")
 	cmd.PersistentFlags().BoolP("read-from-env", "e", false, "If set, reads the database connection string from the environment variable DSN or config file key dsn.")
 
-	cmd.AddCommand(NewMigrateSQLDownCmd(slOpts, dOpts, cOpts))
-	cmd.AddCommand(NewMigrateSQLUpCmd(slOpts, dOpts, cOpts))
-	cmd.AddCommand(NewMigrateSQLStatusCmd(slOpts, dOpts, cOpts))
+	cmd.AddCommand(newMigrateSQLDownCmd(dOpts))
+	cmd.AddCommand(newMigrateSQLUpCmd(dOpts))
+	cmd.AddCommand(newMigrateSQLStatusCmd(dOpts))
 
 	return cmd
 }
 
-func NewMigrateSQLDownCmd(slOpts []servicelocatorx.Option, dOpts []driver.OptionsModifier, cOpts []configx.OptionModifier) *cobra.Command {
-	return popx.NewMigrateSQLDownCmd("hydra", cli.NewHandler(slOpts, dOpts, cOpts).Migration.MigrateSQLDown)
+func newMigrateSQLDownCmd(dOpts []driver.OptionsModifier) *cobra.Command {
+	return popx.NewMigrateSQLDownCmd(cli.NewHandler(dOpts).Migration.MigrateSQLDown)
 }
 
-func NewMigrateSQLStatusCmd(slOpts []servicelocatorx.Option, dOpts []driver.OptionsModifier, cOpts []configx.OptionModifier) *cobra.Command {
-	return popx.NewMigrateSQLStatusCmd("hydra", cli.NewHandler(slOpts, dOpts, cOpts).Migration.MigrateStatus)
+func newMigrateSQLStatusCmd(dOpts []driver.OptionsModifier) *cobra.Command {
+	return popx.NewMigrateSQLStatusCmd(cli.NewHandler(dOpts).Migration.MigrateStatus)
 }
 
-func NewMigrateSQLUpCmd(slOpts []servicelocatorx.Option, dOpts []driver.OptionsModifier, cOpts []configx.OptionModifier) *cobra.Command {
-	return popx.NewMigrateSQLUpCmd("hydra", cli.NewHandler(slOpts, dOpts, cOpts).Migration.MigrateSQLUp)
+func newMigrateSQLUpCmd(dOpts []driver.OptionsModifier) *cobra.Command {
+	return popx.NewMigrateSQLUpCmd(cli.NewHandler(dOpts).Migration.MigrateSQLUp)
 }

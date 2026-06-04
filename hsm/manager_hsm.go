@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //go:build hsm
-// +build hsm
 
 package hsm
 
@@ -16,26 +15,21 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/ory/hydra/v2/driver/config"
-	"github.com/ory/x/otelx"
-
-	"github.com/pkg/errors"
-
-	"github.com/pborman/uuid"
-
-	"github.com/ory/fosite"
-	"github.com/ory/hydra/v2/jwk"
-
-	"github.com/miekg/pkcs11"
-
-	"github.com/ory/hydra/v2/x"
-
-	"github.com/ThalesIgnite/crypto11"
+	"github.com/ThalesGroup/crypto11"
 	"github.com/go-jose/go-jose/v3"
 	"github.com/go-jose/go-jose/v3/cryptosigner"
+	"github.com/gofrs/uuid"
+	"github.com/miekg/pkcs11"
+	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/ory/hydra/v2/driver/config"
+	"github.com/ory/hydra/v2/fosite"
+	"github.com/ory/hydra/v2/jwk"
+	"github.com/ory/hydra/v2/x"
+	"github.com/ory/x/otelx"
 )
 
 const tracingComponent = "github.com/ory/hydra/hsm"
@@ -79,8 +73,8 @@ func (m *KeyManager) GenerateAndPersistKeySet(ctx context.Context, set, kid, alg
 		return nil, err
 	}
 
-	if len(kid) == 0 {
-		kid = uuid.New()
+	if kid == "" {
+		kid = uuid.Must(uuid.NewV4()).String()
 	}
 
 	privateAttrSet, publicAttrSet, err := getKeyPairAttributes(kid, set, use)
@@ -88,20 +82,20 @@ func (m *KeyManager) GenerateAndPersistKeySet(ctx context.Context, set, kid, alg
 		return nil, err
 	}
 
-	switch {
-	case alg == "RS256":
+	switch alg {
+	case "RS256":
 		key, err := m.GenerateRSAKeyPairWithAttributes(publicAttrSet, privateAttrSet, 4096)
 		if err != nil {
 			return nil, err
 		}
 		return createKeySet(key, kid, alg, use)
-	case alg == "ES256":
+	case "ES256":
 		key, err := m.GenerateECDSAKeyPairWithAttributes(publicAttrSet, privateAttrSet, elliptic.P256())
 		if err != nil {
 			return nil, err
 		}
 		return createKeySet(key, kid, alg, use)
-	case alg == "ES512":
+	case "ES512":
 		key, err := m.GenerateECDSAKeyPairWithAttributes(publicAttrSet, privateAttrSet, elliptic.P521())
 		if err != nil {
 			return nil, err
@@ -285,8 +279,7 @@ func (m *KeyManager) getKeySetAttributes(ctx context.Context, key crypto11.Signe
 	return string(kid), alg, use, nil
 }
 
-func getKeyPairAttributes(kid string, set string, use string) (crypto11.AttributeSet, crypto11.AttributeSet, error) {
-
+func getKeyPairAttributes(kid, set, use string) (crypto11.AttributeSet, crypto11.AttributeSet, error) {
 	privateAttrSet, err := crypto11.NewAttributeSetWithIDAndLabel([]byte(kid), []byte(set))
 	if err != nil {
 		return nil, nil, err

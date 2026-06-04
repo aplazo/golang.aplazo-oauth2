@@ -1,4 +1,4 @@
-FROM golang:1.22 AS builder
+FROM golang:1.26 AS builder
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
@@ -7,6 +7,10 @@ RUN apt-get update && \
 
 WORKDIR /go/src/github.com/ory/hydra
 RUN mkdir -p ./internal/httpclient
+
+COPY oryx/go.mod oryx/go.mod
+COPY oryx/go.sum oryx/go.sum
+                
 
 COPY go.mod go.sum ./
 COPY internal/httpclient/go.* ./internal/httpclient/

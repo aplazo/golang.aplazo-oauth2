@@ -11,34 +11,36 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 
-	"github.com/ory/fosite/compose"
-	"github.com/ory/fosite/token/jwt"
 	hydra "github.com/ory/hydra/v2/client"
+	"github.com/ory/hydra/v2/driver"
 	"github.com/ory/hydra/v2/driver/config"
 	"github.com/ory/hydra/v2/flow"
-	"github.com/ory/hydra/v2/fositex"
+	"github.com/ory/hydra/v2/fosite/compose"
+	"github.com/ory/hydra/v2/fosite/token/jwt"
 	"github.com/ory/hydra/v2/internal/kratos"
 	"github.com/ory/hydra/v2/internal/testhelpers"
 	hydraoauth2 "github.com/ory/hydra/v2/oauth2"
 	"github.com/ory/hydra/v2/x"
-	"github.com/ory/x/contextx"
 	"github.com/ory/x/sqlxx"
 )
 
 func TestResourceOwnerPasswordGrant(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	fakeKratos := kratos.NewFake()
-	reg := testhelpers.NewMockedRegistry(t, &contextx.Default{})
-	reg.WithKratos(fakeKratos)
-	reg.WithExtraFositeFactories([]fositex.Factory{compose.OAuth2ResourceOwnerPasswordCredentialsFactory})
-	publicTS, adminTS := testhelpers.NewOAuth2Server(ctx, t, reg)
+	reg := testhelpers.NewRegistryMemory(t,
+		driver.WithKratosClient(fakeKratos),
+		driver.WithExtraFositeFactories(compose.OAuth2ResourceOwnerPasswordCredentialsFactory),
+	)
+	publicTS, adminTS := testhelpers.NewOAuth2Server(t.Context(), t, reg)
 
-	secret := uuid.New().String()
+	secret := uuid.Must(uuid.NewV4()).String()
 	audience := sqlxx.StringSliceJSONFormat{"https://aud.example.com"}
 	client := &hydra.Client{
 		Secret:     secret,
@@ -110,7 +112,7 @@ func TestResourceOwnerPasswordGrant(t *testing.T) {
 
 		// Access token should have hook and identity_id claims
 		jwtAT, err := jwt.Parse(token.AccessToken, func(token *jwt.Token) (interface{}, error) {
-			return reg.AccessTokenJWTStrategy().GetPublicKey(ctx)
+			return reg.AccessTokenJWTSigner().GetPublicKey(ctx)
 		})
 		require.NoError(t, err)
 		assert.Equal(t, kratos.FakeUsername, jwtAT.Claims["ext"].(map[string]any)["username"])
@@ -121,7 +123,7 @@ func TestResourceOwnerPasswordGrant(t *testing.T) {
 
 		t.Run("case=introspect token", func(t *testing.T) {
 			// Introspected token should have hook and identity_id claims
-			i := testhelpers.IntrospectToken(t, oauth2Config, token.AccessToken, adminTS)
+			i := testhelpers.IntrospectToken(t, token.AccessToken, adminTS)
 			assert.True(t, i.Get("active").Bool(), "%s", i)
 			assert.Equal(t, kratos.FakeUsername, i.Get("ext.username").String(), "%s", i)
 			assert.Equal(t, kratos.FakeIdentityID, i.Get("sub").String(), "%s", i)
@@ -140,7 +142,7 @@ func TestResourceOwnerPasswordGrant(t *testing.T) {
 			require.NotEqual(t, token.RefreshToken, refreshedToken.RefreshToken)
 
 			jwtAT, err := jwt.Parse(refreshedToken.AccessToken, func(token *jwt.Token) (interface{}, error) {
-				return reg.AccessTokenJWTStrategy().GetPublicKey(ctx)
+				return reg.AccessTokenJWTSigner().GetPublicKey(ctx)
 			})
 			require.NoError(t, err)
 			assert.Equal(t, kratos.FakeIdentityID, jwtAT.Claims["sub"])

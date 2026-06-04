@@ -1,4 +1,4 @@
-FROM oryd/hydra:v2.3.0
+FROM oryd/hydra:v26.2.0
 
 ENV DSN=
 

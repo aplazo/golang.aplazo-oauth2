@@ -1,6 +1,6 @@
 services:
   hydra:
-    image: oryd/hydra:v2.3.0
+    image: oryd/hydra:v26.2.0
     ports:
       - 4444:4444 # Public port
       - 4445:4445 # Admin port
@@ -8,7 +8,8 @@ services:
       - .env
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:4445/health/ready"]
+      test:
+        ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:4445/health/ready"]
       interval: 10s
       timeout: 5s
       retries: 5
