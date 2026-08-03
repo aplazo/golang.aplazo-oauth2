@@ -16,6 +16,7 @@ spec:
   type: service
   lifecycle: production
   owner: group:default/flagship-squad
+  system: system:default/walmart-cashi-integration-system
   dependsOn:
   - resource:default/shared-nosql-database
   - resource:default/datadog
