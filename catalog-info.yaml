@@ -1,0 +1,22 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: oauth2
+  title: OAUTH2
+  description: The only web-scale, fully customizable OpenID Certified™ OpenID Connect and OAuth2 Provider in the world. Become an OpenID Connect and OAuth2 Provider over night. Written in Go, cloud native, headless, API-first. Available as a service on Ory Network and for self-hosters. Relied upon by OpenAI and others for web-scale security.
+  tags:
+  - go
+  - service
+  annotations:
+    github.com/project-slug: aplazo/golang.aplazo-oauth2
+    aplazo.dev/tier: '1'
+    aws.amazon.com/amazon-ecs-service-arn: arn:aws:ecs:us-west-1:159200192518:service/cl-aplazoprod/svc-account-prod-df09bfb
+    aplazo.dev/ecs-scaling-method: horizontal
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/flagship-squad
+  system: system:default/authn-authz-system
+  dependsOn:
+  - resource:default/shared-nosql-database
+  - resource:default/datadog
