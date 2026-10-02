@@ -19,7 +19,7 @@ type hasherConfig struct {
 }
 
 func (c hasherConfig) HasherPBKDF2Config(_ context.Context) *hasherx.PBKDF2Config {
-	return &hasherx.PBKDF2Config{}
+	return &hasherx.PBKDF2Config{KeyLength: 32}
 }
 
 func (c hasherConfig) HasherBcryptConfig(_ context.Context) *hasherx.BCryptConfig {

@@ -2,8 +2,8 @@ name: Auto assign to author
 
 on:
   pull_request:
-    types: [ opened ]
-    branches: [ master, main, develop ]
+    types: [opened]
+    branches: [master, main, develop]
 
 permissions:
   contents: read
